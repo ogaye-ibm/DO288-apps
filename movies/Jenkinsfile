@@ -87,7 +87,7 @@ pipeline {
                 sh '''
                     oc project ${DEV_PROJECT}
                     oc new-app --as-deployment-config --name movies -i ${APP_NAME}:latest
-                    oc expose svc/${APP_NAME}
+                    oc expose svc/${APP_NAME} -n ${DEV_PROJECT}
                 '''
             }
         }
@@ -97,7 +97,7 @@ pipeline {
             script {
                 openshift.withCluster() {
                   openshift.withProject(env.DEV_PROJECT) {
-                            def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
+                            //def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
                             openshift.selector("dc", "${APP_NAME}").related('pods').untilEach(1) {
                                 return (it.object().status.phase == "Running")
                             }
@@ -134,7 +134,7 @@ pipeline {
                 sh '''
                          oc project ${STAGE_PROJECT}
                          oc new-app --as-deployment-config --name movies -i ${APP_NAME}:stage
-                         oc expose svc/${APP_NAME}
+                         oc expose svc/${APP_NAME} -n ${STAGE_PROJECT}
                 '''
             }
         }
